@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meldingsfiche - Feedbackgenerator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for smoother look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-20 lg:pb-0">
+
+    <!-- Top Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center justify-between w-full sm:w-auto">
+                <div class="flex items-center gap-2.5 sm:gap-3">
+                    <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-sm shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-xl font-bold text-slate-900 leading-tight">Meldingsfiche - Feedbackgenerator</h1>
+                        <p class="text-[11px] sm:text-sm text-slate-500">Alle niveaus • Basiscompetenties</p>
+                    </div>
+                </div>
+                
+                <!-- Mobile Reset Button -->
+                <button onclick="resetAll()" class="sm:hidden p-2 text-slate-500 hover:text-red-600 bg-slate-100 rounded-xl border border-slate-200" title="Alles wissen">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Controls: Gender Toggle & Desktop Reset -->
+            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <div class="bg-slate-200/80 p-1 rounded-xl flex items-center gap-1 border border-slate-300 w-full sm:w-auto">
+                    <button id="btn-male" onclick="setGender('m')" class="flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-blue-600 text-white shadow-sm ring-1 ring-blue-700 flex items-center gap-1.5">
+                        <span>👨</span> Hij
+                    </button>
+                    <button id="btn-female" onclick="setGender('f')" class="flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-white/60 flex items-center gap-1.5">
+                        <span>👩</span> Zij
+                    </button>
+                    <button id="btn-neutral" onclick="setGender('x')" class="flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-white/60 flex items-center gap-1.5">
+                        <span>🧑</span> X (die/hun)
+                    </button>
+                </div>
+
+                <button onclick="resetAll()" class="hidden sm:flex px-3 py-2 text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl border border-slate-200 bg-white transition-colors items-center gap-1.5" title="Alles wissen">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Wissen</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+        
+        <!-- Left Column: Compact Hierarchical Criteria Selection -->
+        <div class="lg:col-span-7 space-y-3 sm:space-y-4">
+            <!-- Quick Filter & Collapse/Expand All -->
+            <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 space-y-2.5">
+                <div class="flex gap-2">
+                    <div class="relative flex-grow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input type="text" id="search-input" onkeyup="filterCriteria()" placeholder="Zoek sleutelwoord (bv. katapult, perfectum, vocalen)..." class="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                    </div>
+                    <button onclick="toggleAllCategories()" id="btn-toggle-all" class="px-3 py-2 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 whitespace-nowrap transition-colors">
+                        Alles inklappen
+                    </button>
+                </div>
+                <div class="flex items-center justify-between text-[11px] sm:text-xs text-slate-500 px-1">
+                    <span>Klik <strong>+</strong> of <strong>-</strong>; sub-opties klappen automatisch uit.</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold">+ Behaald</span>
+                        <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold">- Niet</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Container -->
+            <div id="categories-container" class="space-y-2.5 sm:space-y-3">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Right Column: Live Output & Preview -->
+        <div id="output-section" class="lg:col-span-5 lg:sticky lg:top-24 space-y-4 scroll-mt-24">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden flex flex-col">
+                <div class="bg-slate-800 text-white px-4 sm:px-5 py-3 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <h2 class="font-semibold text-sm sm:text-base">Tekst Meldingsfiche</h2>
+                    </div>
+                    <span id="word-count" class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">0 woorden</span>
+                </div>
+
+                <!-- Optional Context Inputs -->
+                <div class="p-3 sm:p-4 bg-slate-50 border-b border-slate-200 space-y-2.5 sm:space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Naam cursist(e) (optioneel)</label>
+                            <input type="text" id="student-name" oninput="generateText()" placeholder="Bv. Ahmed / Sarah" class="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Module (niet geslaagd voor)</label>
+                            <select id="module-select" onchange="generateText()" class="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">-- Kies module --</option>
+                                <option value="1.1 Normaal">1.1 Normaal</option>
+                                <option value="1.1 Verkort">1.1 Verkort</option>
+                                <option value="1.1 Verlengd">1.1 Verlengd</option>
+                                <option value="1.2 Normaal">1.2 Normaal</option>
+                                <option value="1.2 Verkort">1.2 Verkort</option>
+                                <option value="1.2 Verlengd">1.2 Verlengd</option>
+                                <option value="2.1 M">2.1 M</option>
+                                <option value="2.1 S">2.1 S</option>
+                                <option value="2.1 M+S">2.1 M+S</option>
+                                <option value="2.2 M">2.2 M</option>
+                                <option value="2.2 S">2.2 S</option>
+                                <option value="2.2 M+S">2.2 M+S</option>
+                                <option value="2.3 M">2.3 M</option>
+                                <option value="2.3 S">2.3 S</option>
+                                <option value="2.3 M+S">2.3 M+S</option>
+                                <option value="2.4 M">2.4 M</option>
+                                <option value="2.4 S">2.4 S</option>
+                                <option value="2.4 M+S">2.4 M+S</option>
+                                <option value="3.1 M">3.1 M</option>
+                                <option value="3.2 S">3.2 S</option>
+                                <option value="4.1 M">4.1 M</option>
+                                <option value="4.2 S">4.2 S</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 items-center">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Stijl van de tekst</label>
+                            <select id="tone-select" onchange="generateText()" class="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="standard">Vlot & Formeel (Aanbevolen)</option>
+                                <option value="concise">Beknopt (Opsommend)</option>
+                            </select>
+                        </div>
+                        <div class="pt-0 sm:pt-4">
+                            <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-lg border border-slate-300 hover:border-indigo-400 transition-colors select-none">
+                                <input type="checkbox" id="include-feedback-form" checked onchange="generateText()" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                                <span class="text-xs font-medium text-slate-700">Vermeld feedbackformulier in bijlage</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editable Textarea -->
+                <div class="p-3 sm:p-4 flex-grow">
+                    <textarea id="output-text" rows="11" oninput="updateWordCount()" class="w-full p-3 text-sm sm:text-base text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white leading-relaxed resize-y" placeholder="Kies links de criteria (+) of (-). De feedbacktekst verschijnt hier meteen..."></textarea>
+                    <p class="text-[11px] sm:text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        <span>Je kunt de tekst hierboven nog vrij aanpassen voor je kopieert.</span>
+                    </p>
+                </div>
+
+                <!-- Desktop Action Bar -->
+                <div class="px-4 sm:px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+                    <button onclick="generateText()" class="px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl transition-colors">
+                        Herstel tekst
+                    </button>
+                    <button onclick="copyToClipboard()" class="flex-grow sm:flex-grow-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        <span>Kopieer voor meldingsfiche</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toast Notification for Copy -->
+            <div id="toast" class="hidden fixed bottom-20 lg:static left-4 right-4 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-xl text-sm font-medium flex items-center justify-center gap-2 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Gekopieerd! Plak de tekst nu in de meldingsfiche.</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Sticky Bottom Action Bar for Smartphones (< 1024px) -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-3 py-2.5 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] z-30 flex items-center justify-center">
+        <button onclick="scrollToOutput()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-200">
+            <span>👁️ Bekijk en kopieer tekst</span>
+            <span id="mobile-badge" class="bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+    </div>
+
+    <script>
+        // State management
+        let gender = 'm'; // 'm' = hij / zijn, 'f' = zij / haar, 'x' = die / hun
+        let selections = {}; // { itemId: { status: 'pos' | 'neg', subs: ['subId1', 'subId2'] } }
+        let expandedItems = {}; // { itemId: true | false }
+        let collapsedCategories = {}; // { catId: true | false }
+        let allCollapsed = false;
+
+        // Comprehensive Hierarchical Rubric Data
+        const rubricData = [
+            {
+                id: 'inhoud',
+                title: '1. Inhoud',
+                icon: '📝',
+                items: [
+                    {
+                        id: 'inhoud_opdracht',
+                        label: 'Voldoet aan de opdracht',
+                        pos: '{hij} voldoet aan de opdracht',
+                        neg: 'wat {hij} schrijft, voldoet nog onvoldoende aan de opdracht'
+                    },
+                    {
+                        id: 'inhoud_info',
+                        label: 'Genoeg en relevante informatie',
+                        pos: '{hij} geeft genoeg en relevante informatie',
+                        neg: '{hij} geeft nog te weinig relevante informatie'
+                    }
+                ]
+            },
+            {
+                id: 'structuur',
+                title: '2. Structuur',
+                icon: '🏗️',
+                items: [
+                    {
+                        id: 'structuur_logisch',
+                        label: 'Logisch & gestructureerd (inleiding/kern/slot)',
+                        pos: '{hij} schrijft logisch en gestructureerd',
+                        neg: '{hij} bouwt de tekst nog onvoldoende logisch op (inleiding, kern en slot)'
+                    },
+                    {
+                        id: 'structuur_woorden',
+                        label: 'Gebruik van structuurwoorden',
+                        pos: '{hij} gebruikt passende structuurwoorden voor de samenhang',
+                        neg: '{hij} gebruikt nog te weinig of foutieve structuurwoorden'
+                    },
+                    {
+                        id: 'structuur_layout',
+                        label: 'Duidelijke lay-out & alinea’s',
+                        pos: '{zijn} tekst heeft een duidelijke lay-out met goed afgebakende alinea’s',
+                        neg: 'de tekst mist een duidelijke lay-out en indeling in alinea’s'
+                    }
+                ]
+            },
+            {
+                id: 'woordenschat',
+                title: '3. Woordenschat',
+                icon: '📚',
+                items: [
+                    {
+                        id: 'ws_basis',
+                        label: 'Basiswoordenschat & variatie',
+                        pos: '{hij} beheerst de basiswoordenschat goed en varieert voldoende',
+                        neg: '{hij} maakt nog te veel fouten tegen de basiswoordenschat',
+                        subOptions: [
+                            { id: 'ws_beperkt', text: 'beperkte woordenschat' },
+                            { id: 'ws_thema', text: 'woordenschat past niet bij thema' },
+                            { id: 'ws_herhaling', text: 'veel herhaling van dezelfde woorden' }
+                        ]
+                    },
+                    {
+                        id: 'ws_nederlands',
+                        label: 'Alleen Nederlandse woorden',
+                        pos: '{hij} gebruikt consequent Nederlandse woorden',
+                        neg: '{hij} gebruikt nog te veel anderstalige woorden',
+                        subOptions: [
+                            { id: 'ws_engels', text: 'veel woorden uit het Engels' },
+                            { id: 'ws_frans', text: 'woorden uit het Frans' },
+                            { id: 'ws_moedertaal', text: 'interferentie uit de moedertaal' }
+                        ]
+                    },
+                    {
+                        id: 'ws_preposities_artikels',
+                        label: 'Preposities & artikels (de/het)',
+                        pos: '{hij} gebruikt de juiste preposities en artikels',
+                        neg: '{hij} maakt nog vaak fouten tegen preposities en artikels',
+                        subOptions: [
+                            { id: 'ws_prep', text: 'preposities' },
+                            { id: 'ws_art', text: 'artikels (de/het)' }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'grammatica',
+                title: '4. Grammatica',
+                icon: '⚙️',
+                items: [
+                    {
+                        id: 'gram_tijd',
+                        label: 'Vorm & tijd van het verbum',
+                        pos: '{hij} past de vorm en tijd van het verbum correct toe',
+                        neg: '{hij} maakt nog te veel fouten tegen de vorm en tijd van het verbum',
+                        subOptions: [
+                            { id: 'tijd_presens', text: 'presens' },
+                            { id: 'tijd_perfectum', text: 'vorm perfectum' },
+                            { id: 'tijd_imperfectum', text: 'imperfectum' },
+                            { id: 'tijd_futurum', text: 'futurum' },
+                            { id: 'tijd_plusquam', text: 'plusquamperfectum' }
+                        ]
+                    },
+                    {
+                        id: 'gram_plaats',
+                        label: 'Plaats van het verbum (inversie / katapult)',
+                        pos: '{hij} zet het verbum op de juiste plaats in hoofd- en bijzin',
+                        neg: 'de plaats van het verbum is nog vaak foutief',
+                        subOptions: [
+                            { id: 'plaats_inversie', text: 'inversie in hoofdzin' },
+                            { id: 'plaats_katapult', text: 'katapult in bijzin' },
+                            { id: 'plaats_tang', text: 'tangconstructie' }
+                        ]
+                    },
+                    {
+                        id: 'gram_subject_verbum',
+                        label: 'Subject + verbum & passief',
+                        pos: '{hij} gebruikt altijd een subject en verbum en vormt passieve zinnen correct',
+                        neg: '{hij} maakt nog fouten tegen de zinskern of passieve constructies',
+                        subOptions: [
+                            { id: 'kern_ontbreekt', text: 'ontbrekend subject of verbum' },
+                            { id: 'kern_passief', text: 'vorming van het passief' }
+                        ]
+                    },
+                    {
+                        id: 'gram_rest_pronomina',
+                        label: 'Woordvolgorde rest, pronomina, negatie & adjectief',
+                        pos: '{hij} gebruikt pronomina, negatie en adjectieven meestal correct',
+                        neg: '{hij} maakt nog fouten tegen pronomina, negatie of de verbuiging van het adjectief',
+                        subOptions: [
+                            { id: 'rest_volgorde', text: 'woordvolgorde in de rest' },
+                            { id: 'rest_pronomina', text: 'pronomina' },
+                            { id: 'rest_negatie', text: 'negatie (niet/geen)' },
+                            { id: 'rest_adjectief', text: 'adjectief (-e)' }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'spelling',
+                title: '5. Spelling & Interpunctie',
+                icon: '✍️',
+                items: [
+                    {
+                        id: 'spel_woorden',
+                        label: 'Woordspelling (vocalen, verba, pluralis)',
+                        pos: '{hij} schrijft de meeste woorden foutloos',
+                        neg: '{hij} maakt nog te veel spelfouten',
+                        subOptions: [
+                            { id: 'spel_vocalen', text: 'lange en korte vocalen' },
+                            { id: 'spel_verba', text: 'spelling van verba (d/t)' },
+                            { id: 'spel_pluralis', text: 'pluralis / diminutief' },
+                            { id: 'spel_engels', text: 'invloed van het Engels' }
+                        ]
+                    },
+                    {
+                        id: 'spel_leestekens',
+                        label: 'Hoofdletters & leestekens',
+                        pos: '{hij} gebruikt hoofdletters en leestekens correct',
+                        neg: 'het gebruik van leestekens en hoofdletters is nog onvoldoende verzorgd',
+                        subOptions: [
+                            { id: 'spel_hoofdletters', text: 'hoofdletters' },
+                            { id: 'spel_punten', text: 'punten en komma’s' }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'attitude',
+                title: '6. Efficiëntie & Attitude',
+                icon: '🌟',
+                items: [
+                    {
+                        id: 'att_motivatie',
+                        label: 'Motivatie, aanwezigheid & inzet',
+                        pos: '{hij} is gemotiveerd en werkt actief mee in de les',
+                        neg: 'door onvoldoende aanwezigheid of actieve deelname miste {hij} belangrijke oefenkansen',
+                        subOptions: [
+                            { id: 'att_afwezig', text: 'veel afwezigheden' },
+                            { id: 'att_te_laat', text: 'regelmatig te laat' },
+                            { id: 'att_taken', text: 'taken niet ingediend' }
+                        ]
+                    },
+                    {
+                        id: 'att_toon',
+                        label: 'Toon, vlotheid & schrijfdurf',
+                        pos: '{hij} toont schrijfdurf en hanteert een passende toon',
+                        neg: 'de toon van de tekst sluit nog onvoldoende aan bij de tekstsoort'
+                    }
+                ]
+            }
+        ];
+
+        // Render all categories and items
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            rubricData.forEach(cat => {
+                const isCollapsed = !!collapsedCategories[cat.id];
+                let posCount = 0;
+                let negCount = 0;
+
+                cat.items.forEach(item => {
+                    if (selections[item.id]?.status === 'pos') posCount++;
+                    if (selections[item.id]?.status === 'neg') negCount++;
+                });
+
+                const catCard = document.createElement('div');
+                catCard.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all category-card';
+                catCard.dataset.catId = cat.id;
+
+                catCard.innerHTML = `
+                    <button type="button" onclick="toggleCategory('${cat.id}')" class="w-full px-4 py-3 bg-slate-50/80 hover:bg-slate-100/80 border-b ${isCollapsed ? 'border-transparent' : 'border-slate-200'} flex items-center justify-between text-left transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-base sm:text-lg">${cat.icon}</span>
+                            <span class="font-bold text-sm sm:text-base text-slate-800">${cat.title}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${posCount > 0 ? `<span class="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800">+${posCount}</span>` : ''}
+                            ${negCount > 0 ? `<span class="px-2 py-0.5 text-xs font-bold rounded-full bg-rose-100 text-rose-800">-${negCount}</span>` : ''}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500 transition-transform ${isCollapsed ? '-rotate-90' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </button>
+                    <div class="${isCollapsed ? 'hidden' : 'divide-y divide-slate-100'}">
+                        ${cat.items.map(item => renderItemHTML(item)).join('')}
+                    </div>
+                `;
+
+                container.appendChild(catCard);
+            });
+
+            updateMobileBadge();
+        }
+
+        // Render a single criterion row + collapsible sub-options
+        function renderItemHTML(item) {
+            const sel = selections[item.id];
+            const status = sel?.status || null;
+            const selectedSubs = sel?.subs || [];
+            const hasSubs = item.subOptions && item.subOptions.length > 0;
+            const isExpanded = !!expandedItems[item.id];
+
+            let rowBg = 'bg-white hover:bg-slate-50/60';
+            if (status === 'pos') rowBg = 'bg-emerald-50/50';
+            if (status === 'neg') rowBg = 'bg-rose-50/50';
+
+            return `
+                <div class="p-3 sm:px-4 transition-colors criterion-row ${rowBg}" data-search="${(item.label + ' ' + (hasSubs ? item.subOptions.map(s => s.text).join(' ') : '')).toLowerCase()}">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex-grow pr-2">
+                            <div class="text-xs sm:text-sm font-medium text-slate-800 leading-snug">${item.label}</div>
+                            ${hasSubs ? `
+                                <button type="button" onclick="toggleExpandItem('${item.id}')" class="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-indigo-600 hover:text-indigo-800">
+                                    <span>${isExpanded ? '▾ Verberg details' : '▸ Kies details'}</span>
+                                    ${selectedSubs.length > 0 ? `<span class="bg-indigo-100 text-indigo-800 px-1.5 py-0.2 rounded-full font-semibold">${selectedSubs.length}</span>` : ''}
+                                </button>
+                            ` : ''}
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button type="button" onclick="toggleCriterion('${item.id}', 'pos')" class="w-9 h-9 sm:w-10 sm:h-9 rounded-xl font-bold text-sm transition-all flex items-center justify-center border ${status === 'pos' ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm scale-105' : 'bg-white text-slate-500 border-slate-200 hover:border-emerald-400 hover:text-emerald-600'}" title="Behaald (+)">
+                                +
+                            </button>
+                            <button type="button" onclick="toggleCriterion('${item.id}', 'neg')" class="w-9 h-9 sm:w-10 sm:h-9 rounded-xl font-bold text-sm transition-all flex items-center justify-center border ${status === 'neg' ? 'bg-rose-600 text-white border-rose-700 shadow-sm scale-105' : 'bg-white text-slate-500 border-slate-200 hover:border-rose-400 hover:text-rose-600'}" title="Niet behaald (-)">
+                                -
+                            </button>
+                        </div>
+                    </div>
+                    ${hasSubs && isExpanded ? `
+                        <div class="mt-2.5 pt-2.5 border-t border-slate-200/70 flex flex-wrap gap-1.5 items-center">
+                            ${item.subOptions.map(sub => {
+                                const active = selectedSubs.includes(sub.id);
+                                return `
+                                    <button type="button" onclick="toggleSubOption('${item.id}', '${sub.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${active ? 'bg-indigo-600 text-white border-indigo-700 shadow-xs' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/40'}">
+                                        ${active ? '✓ ' : ''}${sub.text}
+                                    </button>
+                                `;
+                            }).join('')}
+                            ${selectedSubs.length > 0 ? `
+                                <button type="button" onclick="clearSubOptions('${item.id}')" class="px-2 py-1 text-[11px] text-slate-400 hover:text-rose-600 underline ml-1">
+                                    Wis details
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function toggleCategory(catId) {
+            collapsedCategories[catId] = !collapsedCategories[catId];
+            renderCategories();
+        }
+
+        function toggleAllCategories() {
+            allCollapsed = !allCollapsed;
+            rubricData.forEach(cat => {
+                collapsedCategories[cat.id] = allCollapsed;
+            });
+            const btn = document.getElementById('btn-toggle-all');
+            if (btn) {
+                btn.textContent = allCollapsed ? 'Alles uitklappen' : 'Alles inklappen';
+            }
+            renderCategories();
+        }
+
+        function toggleExpandItem(itemId) {
+            expandedItems[itemId] = !expandedItems[itemId];
+            renderCategories();
+        }
+
+        function toggleCriterion(itemId, status) {
+            const current = selections[itemId];
+            if (current && current.status === status) {
+                delete selections[itemId];
+            } else {
+                selections[itemId] = {
+                    status: status,
+                    explicit: true,
+                    subs: current?.subs || []
+                };
+                expandedItems[itemId] = true;
+            }
+            renderCategories();
+            generateText();
+        }
+
+        function toggleSubOption(itemId, subId) {
+            if (!selections[itemId]) {
+                selections[itemId] = { status: 'neg', explicit: false, subs: [] };
+            }
+            const subs = selections[itemId].subs;
+            const idx = subs.indexOf(subId);
+            if (idx > -1) {
+                subs.splice(idx, 1);
+            } else {
+                subs.push(subId);
+            }
+
+            // Als geen enkel sleutelwoord meer aangevinkt is, verdwijnt de beoordeling (+/-)
+            if (subs.length === 0) {
+                delete selections[itemId];
+            }
+
+            renderCategories();
+            generateText();
+        }
+
+        function clearSubOptions(itemId) {
+            delete selections[itemId];
+            renderCategories();
+            generateText();
+        }
+
+        // Set Gender ('m', 'f', or 'x')
+        function setGender(g) {
+            gender = g;
+            const btnMale = document.getElementById('btn-male');
+            const btnFemale = document.getElementById('btn-female');
+            const btnNeutral = document.getElementById('btn-neutral');
+
+            const inactiveClass = 'flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-white/60 flex items-center gap-1.5';
+
+            btnMale.className = inactiveClass;
+            btnFemale.className = inactiveClass;
+            btnNeutral.className = inactiveClass;
+
+            if (g === 'm') {
+                btnMale.className = 'flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-blue-600 text-white shadow-sm ring-1 ring-blue-700 flex items-center gap-1.5';
+            } else if (g === 'f') {
+                btnFemale.className = 'flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-fuchsia-600 text-white shadow-sm ring-1 ring-fuchsia-700 flex items-center gap-1.5';
+            } else {
+                btnNeutral.className = 'flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-violet-600 text-white shadow-sm ring-1 ring-violet-700 flex items-center gap-1.5';
+            }
+
+            generateText();
+        }
+
+        // Apply gender pronouns & automatic Dutch grammar/spelling cleanup
+        function applyGenderAndGrammar(str) {
+            const subj = gender === 'm' ? 'hij' : (gender === 'f' ? 'zij' : 'die');
+            const poss = gender === 'm' ? 'zijn' : (gender === 'f' ? 'haar' : 'hun');
+            const obj = gender === 'm' ? 'hem' : (gender === 'f' ? 'haar' : 'hen');
+            const cursist = gender === 'f' ? 'cursiste' : 'cursist';
+
+            let res = str
+                .replace(/\{hij\}/g, subj)
+                .replace(/\{zijn\}/g, poss)
+                .replace(/\{hem\}/g, obj)
+                .replace(/\{cursist\}/g, cursist);
+
+            // Clean spacing and punctuation
+            res = res.replace(/\s+/g, ' ').trim();
+            res = res.replace(/\s+([.,;:!?])/g, '$1');
+            res = res.replace(/\.{2,}/g, '.');
+            return res;
+        }
+
+        function capitalizeFirst(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function joinWithEn(arr) {
+            if (arr.length === 0) return '';
+            if (arr.length === 1) return arr[0];
+            if (arr.length === 2) return `${arr[0]} en ${arr[1]}`;
+            return `${arr.slice(0, -1).join(', ')} en ${arr[arr.length - 1]}`;
+        }
+
+        // Build formatted phrase for an item including its selected sub-options
+        function buildItemPhrase(item, status, selectedSubIds) {
+            let base = status === 'pos' ? item.pos : item.neg;
+            base = applyGenderAndGrammar(base);
+
+            if (selectedSubIds && selectedSubIds.length > 0 && item.subOptions) {
+                const subTexts = selectedSubIds
+                    .map(sid => item.subOptions.find(s => s.id === sid)?.text)
+                    .filter(Boolean);
+                if (subTexts.length > 0) {
+                    base += ` (${joinWithEn(subTexts)})`;
+                }
+            }
+            return base;
+        }
+
+        // Main Text Generator
+        function generateText() {
+            const nameRaw = document.getElementById('student-name').value.trim();
+            const moduleVal = document.getElementById('module-select').value;
+            const tone = document.getElementById('tone-select').value;
+            const includeForm = document.getElementById('include-feedback-form').checked;
+            const outputEl = document.getElementById('output-text');
+
+            const cursistLabel = gender === 'f' ? 'De cursiste' : 'De cursist';
+            const namePart = nameRaw ? ` ${capitalizeFirst(nameRaw)}` : '';
+            const modulePart = moduleVal ? `module ${moduleVal}` : 'deze module';
+
+            const posPhrases = [];
+            const negPhrases = [];
+
+            rubricData.forEach(cat => {
+                cat.items.forEach(item => {
+                    const sel = selections[item.id];
+                    if (sel) {
+                        const phrase = buildItemPhrase(item, sel.status, sel.subs);
+                        if (sel.status === 'pos') posPhrases.push(phrase);
+                        if (sel.status === 'neg') negPhrases.push(phrase);
+                    }
+                });
+            });
+
+            let lines = [];
+            lines.push(`${cursistLabel}${namePart} is niet geslaagd voor ${modulePart}.`);
+
+            if (posPhrases.length > 0 || negPhrases.length > 0) {
+                lines.push('Redenen:');
+
+                if (tone === 'concise') {
+                    if (posPhrases.length > 0) {
+                        lines.push(`+ Sterke punten: ${posPhrases.join('; ')}.`);
+                    }
+                    if (negPhrases.length > 0) {
+                        lines.push(`- Aandachtspunten: ${negPhrases.join('; ')}.`);
+                    }
+                } else {
+                    // Vlot & Formeel
+                    if (posPhrases.length > 0 && negPhrases.length > 0) {
+                        const posCombined = capitalizeFirst(joinWithEn(posPhrases));
+                        const firstNeg = negPhrases[0];
+                        lines.push(`${posCombined}, maar ${firstNeg}.`);
+
+                        if (negPhrases.length > 1) {
+                            const restNeg = negPhrases.slice(1);
+                            const connectors = ['Bovendien', 'Daarnaast', 'Verder', 'Ook'];
+                            restNeg.forEach((p, idx) => {
+                                const conn = connectors[idx % connectors.length];
+                                lines.push(`${conn}: ${p}.`);
+                            });
+                        }
+                    } else if (negPhrases.length > 0) {
+                        const firstNeg = capitalizeFirst(negPhrases[0]);
+                        lines.push(`${firstNeg}.`);
+                        if (negPhrases.length > 1) {
+                            const restNeg = negPhrases.slice(1);
+                            lines.push(`Daarnaast geldt dat ${joinWithEn(restNeg)}.`);
+                        }
+                    } else if (posPhrases.length > 0) {
+                        const posCombined = capitalizeFirst(joinWithEn(posPhrases));
+                        lines.push(`${posCombined}, maar de basiscompetenties zijn over het geheel nog onvoldoende behaald.`);
+                    }
+                }
+            }
+
+            if (includeForm) {
+                const possForm = gender === 'm' ? 'zijn' : (gender === 'f' ? 'haar' : 'hun');
+                lines.push('');
+                lines.push(`(In bijlage vind je ${possForm} feedbackformulier.)`);
+            }
+
+            outputEl.value = lines.join('\n');
+            updateWordCount();
+        }
+
+        // Copy to clipboard using execCommand for maximum compatibility
+        function copyToClipboard() {
+            const textarea = document.getElementById('output-text');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Kopiëren mislukt', err);
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Search / Filter functionality (automatically expands matching categories)
+        function filterCriteria() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            if (query) {
+                rubricData.forEach(cat => {
+                    collapsedCategories[cat.id] = false;
+                });
+                renderCategories();
+            }
+
+            const rows = document.querySelectorAll('.criterion-row');
+            rows.forEach(row => {
+                const text = row.dataset.search || '';
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function updateWordCount() {
+            const text = document.getElementById('output-text').value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            document.getElementById('word-count').textContent = `${words} ${words === 1 ? 'woord' : 'woorden'}`;
+        }
+
+        function updateMobileBadge() {
+            const count = Object.keys(selections).length;
+            const badge = document.getElementById('mobile-badge');
+            if (badge) badge.textContent = count;
+        }
+
+        function scrollToOutput() {
+            const el = document.getElementById('output-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetAll() {
+            selections = {};
+            expandedItems = {};
+            document.getElementById('student-name').value = '';
+            document.getElementById('module-select').value = '';
+            document.getElementById('search-input').value = '';
+            renderCategories();
+            generateText();
+        }
+
+        // Initialize app on load
+        window.onload = function() {
+            renderCategories();
+            generateText();
+        };
+    </script>
+</body>
+</html>
